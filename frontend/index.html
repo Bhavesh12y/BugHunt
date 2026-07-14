@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VisionQA | AI Automation</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i data-lucide="scan-line"></i> VisionQA
+    </div>
+  </nav>
+
+  <main class="dashboard">
+    <section class="config-panel">
+      <div class="panel-header">
+        <h2>New Analysis</h2>
+        <p>Configure your automated QA run.</p>
+      </div>
+
+      <form id="qa-form">
+        <div class="form-group">
+          <label for="url">Target URL <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i data-lucide="link"></i>
+            <input type="url" id="url" placeholder="https://example.com" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="device">Device Target</label>
+            <select id="device">
+              <option value="desktop">Desktop (1440p)</option>
+              <option value="mobile">Mobile (iPhone 12/13)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="auth-section">
+          <label class="section-label"><i data-lucide="lock"></i> Authentication (Optional)</label>
+          <div class="form-group">
+            <input type="text" id="username" placeholder="Username / Email" />
+          </div>
+          <div class="form-group">
+            <input type="password" id="password" placeholder="Password" />
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn">
+          <i data-lucide="play"></i> Run QA Pipeline
+        </button>
+      </form>
+    </section>
+
+   <section class="results-panel">
+      <div id="empty-state" class="empty-state">
+        <i data-lucide="scan-line"></i>
+        <h3>Awaiting Execution</h3>
+        <p>Enter a URL. The crawler will analyze the main page and up to 2 sub-pages.</p>
+      </div>
+
+     <div id="loading-state" class="loading-state hidden">
+        <div class="spinner"></div>
+        <h3>Executing QA Pipeline...</h3>
+        <p>Estimated total time: ~45 seconds.</p>
+        
+        <div class="terminal-ui">
+            <div class="terminal-header">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span>crawler.exe</span>
+            </div>
+            <div id="live-logs-container" class="terminal-body"></div>
+        </div>
+      </div>
+      <div id="results-data" class="results-data hidden">
+        <div class="results-header">
+          <h3>Diagnostic Audit Complete</h3>
+        </div>
+        <div class="report-wrapper markdown-body" id="report-container">
+            </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

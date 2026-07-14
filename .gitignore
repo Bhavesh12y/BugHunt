@@ -1,0 +1,27 @@
+# Environment variables
+backend/.env
+
+# Dependencies
+backend/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Build folders
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
