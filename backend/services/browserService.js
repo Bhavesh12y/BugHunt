@@ -1,9 +1,8 @@
 const puppeteer = require('puppeteer');
-
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function runBrowser(startUrl, username, password, device = 'desktop', customSelectors = {}, onProgress) {
-  onProgress({ type: 'log', message: 'Initializing Headless Chromium engine...' });
+async function runBrowser(startUrl, username, password, device = 'desktop', customSelectors = {}, onProgress = () => {}) {
+  onProgress({ type: 'log', message: 'Booting Headless Chromium Engine...' });
   
   const browser = await puppeteer.launch({
     headless: true,
@@ -27,11 +26,11 @@ async function runBrowser(startUrl, username, password, device = 'desktop', cust
   page.on('console', msg => { if (['error', 'warning'].includes(msg.type())) consoleLogs.push(`[${msg.type().toUpperCase()}] ${msg.text()}`); });
 
   try {
-    onProgress({ type: 'log', message: `Navigating to target URL: ${startUrl}` });
+    onProgress({ type: 'log', message: `Crawling Target: ${startUrl}` });
     await page.goto(startUrl, { waitUntil: 'networkidle2', timeout: 30000 });
     await wait(2000); 
 
-    // AUTHENTICATION
+    // THE RESTORED AUTHENTICATION BLOCK
     if (username && password) {
       onProgress({ type: 'log', message: 'Credentials detected. Attempting login flow...' });
       const userSel = customSelectors.username || 'input[name*="user"], input[name*="email"], input[type="email"], input[type="text"]';
@@ -60,8 +59,7 @@ async function runBrowser(startUrl, username, password, device = 'desktop', cust
       }
     }
 
-    // CAPTURE INITIAL STATE
-    onProgress({ type: 'log', message: 'Capturing baseline viewport and DOM state (1/3)...' });
+    onProgress({ type: 'log', message: 'Capturing Base DOM State (1/3)...' });
     pageStates.push({
       url: page.url(),
       screenshot: await page.screenshot({ fullPage: true, type: 'jpeg', quality: 80, encoding: 'base64' }),
@@ -69,15 +67,12 @@ async function runBrowser(startUrl, username, password, device = 'desktop', cust
       networkIssues: [...networkIssues]
     });
 
-    // HYBRID DISCOVERY (Links + SPA Buttons)
-    onProgress({ type: 'log', message: 'Scanning DOM for interactive elements and internal links...' });
+    onProgress({ type: 'log', message: 'Discovering interactive routes (SPAs and Links)...' });
     const elementsToInteract = await page.evaluate(() => {
       const targets = [];
-      // 1. Find SPA Navigation buttons
       document.querySelectorAll('aside a, aside button, nav a, .sidebar a, [role="menuitem"]').forEach((el, index) => {
         targets.push({ type: 'spa_click', selectorIndex: index, label: el.innerText.trim() || `Menu_Item_${index}` });
       });
-      // 2. Find standard internal links
       document.querySelectorAll('a[href]').forEach(a => {
         if (a.href.startsWith(window.location.origin) && !a.href.includes('#')) {
           targets.push({ type: 'url_nav', href: a.href, label: a.innerText.trim() || 'Internal_Link' });
@@ -86,42 +81,35 @@ async function runBrowser(startUrl, username, password, device = 'desktop', cust
       return targets;
     });
 
-    onProgress({ type: 'log', message: `Found ${elementsToInteract.length} navigable paths. Selecting optimal routes...` });
-
     let statesCaptured = 1;
-
     for (let i = 1; i < elementsToInteract.length && statesCaptured < MAX_STATES; i++) {
       consoleLogs.length = 0;
       networkIssues.length = 0;
       const target = elementsToInteract[i];
 
       if (target.type === 'spa_click') {
-        onProgress({ type: 'log', message: `Triggering DOM interaction: [${target.label}] (${statesCaptured + 1}/${MAX_STATES})` });
+        onProgress({ type: 'log', message: `Interacting: [${target.label}] (${statesCaptured + 1}/${MAX_STATES})` });
         await page.evaluate((index) => {
            const items = document.querySelectorAll('aside a, aside button, nav a, .sidebar a, [role="menuitem"]');
            if (items[index]) items[index].click();
         }, target.selectorIndex);
         await wait(2500); 
       } else if (target.type === 'url_nav') {
-        onProgress({ type: 'log', message: `Navigating to internal URL: [${target.href}] (${statesCaptured + 1}/${MAX_STATES})` });
+        onProgress({ type: 'log', message: `Navigating: [${target.href}] (${statesCaptured + 1}/${MAX_STATES})` });
         await page.goto(target.href, { waitUntil: 'networkidle2', timeout: 15000 }).catch(() => {});
         await wait(1500);
       }
 
-      onProgress({ type: 'log', message: `Capturing telemetry for [${target.label}]...` });
       pageStates.push({
         url: `${page.url()} [Action: ${target.label}]`,
         screenshot: await page.screenshot({ fullPage: true, type: 'jpeg', quality: 80, encoding: 'base64' }),
         consoleLogs: [...consoleLogs],
         networkIssues: [...networkIssues]
       });
-
       statesCaptured++;
     }
 
-    onProgress({ type: 'log', message: 'Crawling complete. Packaging telemetry for Gemini AI...' });
     return pageStates;
-
   } finally {
     await browser.close();
   }

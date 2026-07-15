@@ -3,9 +3,9 @@ const { generateReport } = require('../services/aiService');
 const { URL } = require('url');
 
 async function runQaPipeline(req, res) {
-  const { url, username, password, device, selectors } = req.body;
+  // Grab credentials and instructions
+  const { url, device, instructions, username, password, selectors } = req.body;
 
-  // Configure response headers for chunked streaming
   res.setHeader('Content-Type', 'application/x-ndjson');
   res.setHeader('Transfer-Encoding', 'chunked');
 
@@ -18,26 +18,16 @@ async function runQaPipeline(req, res) {
     const targetUrl = new URL(url);
     if (!['http:', 'https:'].includes(targetUrl.protocol)) throw new Error('Invalid protocol');
     
-    // Pass the callback to stream progress directly to the client
-    const progressCallback = (logData) => {
-      res.write(JSON.stringify(logData) + '\n');
-    };
+    const progressCallback = (logData) => { res.write(JSON.stringify(logData) + '\n'); };
 
+    // Pass username and password back to the browser service
     const pageStates = await runBrowser(targetUrl.href, username, password, device, selectors || {}, progressCallback);
     
-    progressCallback({ type: 'log', message: 'Analyzing captures with Gemini 2.5 Flash... (Estimated time: 10-15s)' });
+    const report = await generateReport(pageStates, progressCallback, instructions);
     
-    const report = await generateReport(pageStates);
     const screenshots = pageStates.map(state => `data:image/jpeg;base64,${state.screenshot}`);
 
-    // Send final result
-    res.write(JSON.stringify({ 
-      type: 'complete', 
-      success: true, 
-      report, 
-      screenshots 
-    }) + '\n');
-
+    res.write(JSON.stringify({ type: 'complete', success: true, report, screenshots }) + '\n');
     res.end();
   } catch (error) {
     console.error('[Pipeline Error]:', error);
