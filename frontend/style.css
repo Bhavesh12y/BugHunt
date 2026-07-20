@@ -8,6 +8,148 @@
   --glow: rgba(255, 255, 255, 0.1);
 }
 
+/* =========================================
+   CLAUDE-INSPIRED MINIMALIST UI OVERRIDES
+   ========================================= */
+
+/* Import elegant typography: Inter for UI, Newsreader for headings/documents */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap');
+
+:root {
+  /* Warm, sophisticated dark theme */
+  --bg-dark: #1a1918; 
+  --bg-card: #242322;
+  --text-main: #e6e4dd;
+  --text-muted: #9a9996;
+  --accent: #d4c5b0; /* Soft warm sand */
+  --border: #3a3936;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* --- Elegant Typography --- */
+h1, h2, .nav-brand {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  color: #f0efea; /* Slightly brighter for emphasis */
+}
+
+.nav-brand {
+  color: #f0efea;
+  font-size: 1.4rem;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+}
+
+/* --- Refined UI Inputs (Replacing pill shapes with clean rectangles) --- */
+.url-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px; /* Structured, not bubbly */
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.url-bar:focus-within {
+  border-color: #555450;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.url-bar input {
+  font-family: 'Inter', sans-serif;
+}
+
+.url-bar button {
+  background: var(--text-main);
+  color: var(--bg-dark);
+  border-radius: 8px;
+  width: 45px;
+  height: 45px;
+  transition: background-color 0.2s;
+}
+
+.url-bar button:hover:not(:disabled) {
+  transform: none; /* Remove bouncy scale effect */
+  background: #ffffff;
+}
+
+#instructions, .device-select, .auth-bar input {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: none;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s;
+}
+
+/* --- Terminal Overhaul (Less "Matrix", more refined workspace) --- */
+.terminal-ui {
+  background: #1e1d1c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.terminal-header {
+  background: #242322;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  padding: 0.75rem 1rem;
+}
+
+.terminal-body {
+  color: #b5b3ad;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* --- Editorial Markdown Report Styling --- */
+.results-data {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-body {
+  font-family: 'Newsreader', Georgia, serif; /* Serifs for reading */
+  font-size: 1.15rem;
+  color: #d6d4cd;
+}
+
+.markdown-body h1, .markdown-body h2 {
+  font-family: 'Newsreader', Georgia, serif;
+  color: #f0efea;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.markdown-body h3 {
+  background: transparent;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
